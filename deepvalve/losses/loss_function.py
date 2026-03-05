@@ -69,4 +69,3 @@ class LossFunction:
             'huber': LossFunction.huber_loss_derivative
         }
         return map.get(name, None)
-    
