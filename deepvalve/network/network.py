@@ -2,27 +2,21 @@ import numpy as np
 from deepvalve.losses import LossFunction
 from deepvalve.layers import Layer
 
-
 class Network:
     """
-    Neural Network consisting of multiple layers.
-    Basic idea of Multi-Layer perceptron
+        Neural Network consisting of multiple layers.
+        Basic idea of Multi-Layer perceptron
     """
 
-    def __init__(self, loss_name='mse'):
-        """
-        Initialize the neural network.
-        
-        Args:
-            loss_name (str): Name of the loss function to use ('mse', 'mae', 'huber')
-        """
+    def __init__(self, loss_name='mse', optimizer = None):
 
-        self.layers = []
+
+        self. layers = []
         self.loss_fn = LossFunction.get_loss_function(loss_name)
         self.loss_fn_derivative = LossFunction.get_loss_derivative(loss_name)
-        self.learning_rate = 0.01
+        self.optimizer = optimizer
 
-    def add_layer(self, num_neurons, num_inputs=None, activation='relu', is_output=False):
+    def add_layer(self, num_neurons, num_inputs=None, activation = 'relu',is_output=False):
         """
         Initialize layers and add to the network.
 
@@ -37,7 +31,7 @@ class Network:
             raise ValueError("Number of inputs must be specified for the first layer.")
         
         num_inputs_per_neuron = num_inputs if not self.layers else self.layers[-1].num_neurons  # get from previous layer
-        layer = Layer(num_neurons, num_inputs_per_neuron, activation, is_output)
+        layer = Layer(num_neurons, num_inputs_per_neuron, activation,self.optimizer, is_output)
         self.layers.append(layer)
 
     def forward(self, inputs):
@@ -74,7 +68,7 @@ class Network:
         
     
     # fit method for training 
-    def fit(self, X, y, epochs=100, learning_rate=0.01):
+    def fit(self, X,y, epochs =100, learning_rate =0.01, verbose = False):
         """
         Train the network using Gradient descent
 
@@ -83,6 +77,7 @@ class Network:
             y (array-like): Target labels.
             epochs (int): Number of training epochs.
             learning_rate (float): Learning rate for weight updates.
+            verbose (bool): Whether to print loss during training.
 
         Info:
             For each epoch, perform forward pass, compute loss, and backward pass to update weights.
@@ -92,7 +87,7 @@ class Network:
         self.learning_rate = learning_rate
         for epoch in range(epochs):
             total_loss = 0
-            for inputs, targets in zip(X, y):
+            for inputs, targets in zip(X,y):
                 targets = np.array(targets).reshape(-1) 
                 # forward pass
                 predictions = self.predict(inputs)
@@ -103,8 +98,8 @@ class Network:
 
                 # backward pass 
                 self.backward(predictions, targets)
-
-            if epoch % 10 == 0:
+            
+            if epoch % 10 == 0 and verbose:
                 print(f"Epoch {epoch}, Loss: {total_loss/len(X)}")
 
         
@@ -115,4 +110,4 @@ class Network:
 
     def __str__(self):
         """String representation of the network"""
-        return f"Network(layers={len(self.layers)}, layer_details={[str(l) for l in self.layers]})"
+        return f"Network(layers={self.num_layers}, layer_sizes={self.layer_sizes})"

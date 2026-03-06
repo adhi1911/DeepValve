@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from deepvalve.activations import ActivationFunction
+from deepvalve.optimizers import SGD
 
 
 class Neuron:
@@ -8,14 +9,14 @@ class Neuron:
     A simple artificial neuron that computes a weighted sum of its inputs, applies an activation function, and produces an output.
     """
 
-    def __init__(self, num_inputs, activation='relu'):
+    def __init__(self, num_inputs, activation ='relu', optimizer = None):
         """
         Initialize the neuron with random weights and bias.
         """
 
         # xavier initialization for weights
         limit = 1/math.sqrt(num_inputs)
-        self.weights = np.random.uniform(-limit, limit, num_inputs)
+        self.weights = np.random.uniform(-limit,limit,num_inputs)
 
         # Bias initialization
         self.bias = np.random.uniform(-limit, limit)
@@ -26,6 +27,7 @@ class Neuron:
         self.activation = ActivationFunction.get_activation(activation)
         self.activation_derivative = ActivationFunction.get_activation_derivative(activation)
 
+        self.optimizer = optimizer if optimizer else SGD() 
     
     def forward(self, inputs):
         """
@@ -50,11 +52,9 @@ class Neuron:
         # Ensure dl_dw is a NumPy array
         dl_dw = np.array(dl_dw)
 
-        # Update weights
-        self.weights -= learning_rate * dl_dw
 
-        # Update bias
-        self.bias -= learning_rate * dl_db
+        # Update weights and bias using the optimizer
+        self.weights, self.bias = self.optimizer.update(self.weights, self.bias, dl_dw, dl_db)
 
     
     def backward(self, dL_dy, learning_rate=0.01):
@@ -102,3 +102,4 @@ class Neuron:
     def __str__(self):
         """String representation of the neuron"""
         return f"Neuron(weights={[round(w, 3) for w in self.weights]}, bias={round(self.bias, 3)})"
+

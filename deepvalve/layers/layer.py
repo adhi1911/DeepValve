@@ -7,18 +7,20 @@ class Layer:
     A layer of neurons in a neural network.
     """
 
-    def __init__(self, num_neurons, num_inputs_per_neuron=None, activation='relu', is_output=False):
+    def __init__(self, num_neurons, num_inputs_per_neuron=None, activation='relu',optimizer= None, is_output=False):
         """
         Initialize the layer with given number of neurons, each with specified number of inputs.
 
         Args: 
             num_neurons (int): Number of neurons in the layer.
             num_inputs_per_neuron (int): Number of inputs each neuron receives.
+            optimizer (Optimizer): Optimizer instance for weight updates.
             is_output (bool): Flag indicating if this layer is the output layer.
         """
 
         self.num_neurons = num_neurons
         self.num_inputs_per_neuron = num_inputs_per_neuron
+        self.optimizer = optimizer
         self.is_output = is_output
 
         # creating neurons for the layer
@@ -62,3 +64,4 @@ class Layer:
         """String representation of the layer"""
         layer_type = "Output" if self.is_output else "Hidden"
         return f"{layer_type} Layer ({self.num_neurons} neurons, {self.num_inputs_per_neuron} inputs each)"
+        
